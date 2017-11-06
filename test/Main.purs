@@ -2,7 +2,7 @@ module Test.Main where
 
 import Prelude
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (log, CONSOLE())
+import Control.Monad.Eff.Console (log, logShow, CONSOLE())
 import Data.Maybe (Maybe(..))
 import Data.Traversable (traverse)
 import Node.Buffer (BUFFER, BufferValueType(..), toArray, concat', fromArray, fill, copy, readString, fromString, toString, read, write, create, getAtOffset)
@@ -44,6 +44,9 @@ main = do
 
   log "getAtOffset"
   testGetAtOffset
+
+  log "UInt32"
+  testUInt32
 
 testReadWrite :: Test
 testReadWrite = do
@@ -130,6 +133,15 @@ testGetAtOffset = do
   assertEq (Just 2) =<< getAtOffset 1 buf
   assertEq Nothing  =<< getAtOffset 4 buf
   assertEq Nothing  =<< getAtOffset (-1) buf
+
+testUInt32 :: Test
+testUInt32 = do
+  buf <- fromArray [-1, -1, -1, -1]
+  readVal <- read UInt32LE 0 buf
+  logShow readVal -- 4294967295
+  logShow $ readVal - 1 -- -2
+  -- chaos reigns: try to uncomment the line below
+  --logShow $ readVal == 4294967295
 
 assertEq :: forall a. Eq a => Show a => a -> a -> Test
 assertEq x y =
